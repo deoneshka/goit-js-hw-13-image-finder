@@ -27,8 +27,6 @@ function searchImagesResult(result) {
 
     refs.gallery.innerHTML = '';
 
-    console.log(result);
-
     if (result.total === 0) {
         throw new Error;
     };
