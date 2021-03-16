@@ -20,7 +20,7 @@ function searchImages(event) {
 
     API.fetchImages(event.target.value)
         .then(searchImagesResult)
-        .catch(error.searchError);
+        .catch(error);
 };
 
 function searchImagesResult(result) {
