@@ -1,43 +1,72 @@
 import API from './js/apiService';
 import getRefs from './js/getRefs';
 import imagesTemplate from './templates/images-list.hbs';
-import debounce from 'lodash.debounce';
 import error from './js/pnotifyErrors';
 import './sass/styles.scss';
 
 const refs = getRefs();
+const apiService = new API();
 
 function renderImagesList(images) {
-    const markupImages = imagesTemplate(images);
-    refs.gallery.innerHTML = markupImages;
-};
-
-function searchImages(event) {
-
-    if (event.target.value === '') {
+    if (images === undefined) {
+        refs.loadMoreBtn.setAttribute('hidden', '');
         return;
     };
 
-    API.fetchImages(event.target.value)
-        .then(searchImagesResult)
-        .catch(error);
+    if (images.hits.length === 0 && images.total > 1) {
+        return error.noMoreResult();
+    };
+
+    if (images.total === 0) {
+        refs.loadMoreBtn.setAttribute('hidden', '');
+        return error.noResult();
+    };
+
+    refs.gallery.insertAdjacentHTML('beforeend', imagesTemplate(images));
+    refs.loadMoreBtn.removeAttribute('hidden');
 };
 
-function searchImagesResult(result) {
-
+function clearGallery() {
     refs.gallery.innerHTML = '';
-
-    if (result.total === 0) {
-        throw new Error;
-    };
-    
-    if (result.total > 0) {
-        renderImagesList(result);
-    };
-        
 };
 
-refs.searchForm.addEventListener('input', debounce(searchImages, 500));
+function scrollElements() {
+    const scrollHeight = Math.max(
+        document.body.scrollHeight, refs.gallery.scrollHeight,
+        document.body.offsetHeight, refs.gallery.offsetHeight,
+        document.body.clientHeight, refs.gallery.clientHeight);
+    
+    setTimeout(() => {
+        window.scrollTo({
+            top: scrollHeight,
+            behavior: 'smooth',
+        });
+    }, 500);
+};
+
+async function searchImages(event) {
+    event.preventDefault();
+
+    if (event.currentTarget.elements.query.value === '') {
+        return error.emptySearch();
+    };
+
+    clearGallery();
+    apiService.query = event.currentTarget.elements.query.value;
+    apiService.resetPage();
+    const result = await apiService.fetchImages();
+    return renderImagesList(result);
+};
+
+async function loadMore() {
+    const result = await apiService.fetchImages();
+    scrollElements();
+    return renderImagesList(result);
+};
+
+refs.searchForm.addEventListener('submit', searchImages);
+refs.loadMoreBtn.addEventListener('click', loadMore);
+
 
 
 
