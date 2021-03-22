@@ -2,28 +2,27 @@
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-}
-
-.gallery-item {
-  display: block;
-  width: calc((100% - 6 * 31px) / 3);
-  height: calc((100% - 6 * 31px) / 3);
-  padding: 1px;
-  margin: 30px;
-  background-color: aquamarine;
+  align-items: center;
+  justify-content: space-around;
 }
 
 .image {
-  display: block;
-  width: 100%;
+  width: 480px;
+  height: 320px;
 }
 
 .stats {
   display: flex;
   justify-content: space-around;
+  align-items: center;
 }
 
 .stats-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+}
+
+.anchor {
+  height: 5px;
 }
